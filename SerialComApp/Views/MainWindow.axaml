@@ -1,0 +1,159 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:SerialComApp.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="350"
+        x:Class="SerialComApp.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="Serial Monitor"
+		TransparencyLevelHint="AcrylicBlur"
+        Background="Transparent"
+		Width="800" Height="350"
+		CanResize="False"
+		ExtendClientAreaToDecorationsHint="False">
+
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+	
+	<Panel>
+		<ExperimentalAcrylicBorder IsHitTestVisible="False">
+			<ExperimentalAcrylicBorder.Material>
+				<ExperimentalAcrylicMaterial
+					BackgroundSource="Digger"
+					TintColor="Black"
+					TintOpacity="1"
+					MaterialOpacity="0.3" />
+			</ExperimentalAcrylicBorder.Material>
+		</ExperimentalAcrylicBorder>
+
+		<Grid>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="1*"/>
+				<ColumnDefinition Width="2*"/>
+			</Grid.ColumnDefinitions>
+
+			<!-- First Column -->
+			<StackPanel Grid.Column="0" Margin="10" Spacing="10">
+
+				<Grid>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="1.2*"/>
+						<ColumnDefinition Width="2*"/>
+					</Grid.ColumnDefinitions>
+
+					<TextBlock Grid.Column="0" VerticalAlignment="Center" Text="COM port:"/>
+					<TextBox Grid.Column="1" Text="{Binding ComPortName}" Watermark="COM3"/>
+				</Grid>
+
+				<Grid>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="1.2*"/>
+						<ColumnDefinition Width="2*"/>
+					</Grid.ColumnDefinitions>
+
+					<TextBlock Grid.Column="0" VerticalAlignment="Center" Text="Baud rate:"/>
+					<TextBox Grid.Column="1" Text="{Binding BaudRate}" Watermark="9600"/>
+				</Grid>
+				
+				<Grid>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="1.2*"/>
+						<ColumnDefinition Width="2*"/>
+					</Grid.ColumnDefinitions>
+					
+					<TextBlock Grid.Column="0" VerticalAlignment="Center" Text="Data bits:"/>
+					
+					<ComboBox Name="DataBitsCombo" ItemsSource="{Binding DataBitsItems}" SelectedItem="{Binding SelectedDataBitsItem}" SelectionChanged="ComboBoxSelectionChanged" SelectedIndex="3" Grid.Column="1" HorizontalAlignment="Stretch" />					
+				</Grid>
+
+				<Grid>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="1.2*"/>
+						<ColumnDefinition Width="2*"/>
+					</Grid.ColumnDefinitions>
+
+					<TextBlock Grid.Column="0" VerticalAlignment="Center" Text="Parity:"/>
+					
+					<ComboBox Name="ParityCombo" ItemsSource="{Binding ParityItems}" SelectedItem="{Binding SelectedParityItem}" SelectionChanged="ComboBoxSelectionChanged" SelectedIndex="0" Grid.Column="1" HorizontalAlignment="Stretch" />
+				</Grid>
+
+				<Grid>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="1.2*"/>
+						<ColumnDefinition Width="2*"/>
+					</Grid.ColumnDefinitions>
+
+					<TextBlock Grid.Column="0" VerticalAlignment="Center" Text="Stop bits:"/>
+					<ComboBox Name="StopBitsCombo" ItemsSource="{Binding StopBitsItems}" SelectedItem="{Binding SelectedStopBitsItem}" SelectionChanged="ComboBoxSelectionChanged" SelectedIndex="0" Grid.Column="1" HorizontalAlignment="Stretch" />
+				</Grid>
+
+				<Grid>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="1.2*"/>
+						<ColumnDefinition Width="2*"/>
+					</Grid.ColumnDefinitions>
+
+					<TextBlock Grid.Column="0" VerticalAlignment="Center" Text="Flow control:"/>
+					<ComboBox Name="FlowControlCombo" ItemsSource="{Binding FlowControlItems}" SelectedItem="{Binding SelectedFlowControlItem}" SelectionChanged="ComboBoxSelectionChanged" SelectedIndex="0" Grid.Column="1" HorizontalAlignment="Stretch" />
+				</Grid>
+
+				<Grid>
+					<Grid.RowDefinitions>
+						<RowDefinition Height="1*"/>
+						<RowDefinition Height="1*"/>
+					</Grid.RowDefinitions>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="1*"/>
+						<ColumnDefinition Width="1*"/>
+					</Grid.ColumnDefinitions>
+
+					<StackPanel Grid.Column="0" Grid.Row="0" Margin="5" Spacing="5">
+						<Button Content="Save Config" Command="{Binding SaveConfigCommand}" HorizontalContentAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+						<Button Content="Connect" Command="{Binding ConnectCommand}" HorizontalContentAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+					</StackPanel>
+
+					<StackPanel Grid.Column="1" Grid.Row="0" Margin="5" Spacing="5">
+						<Button Content="Defaults" Command="{Binding SetDefaultsCommand}" HorizontalContentAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+						<Button Content="Disconnect" Command="{Binding DisconnectCommand}" HorizontalContentAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+					</StackPanel>
+				</Grid>
+
+			</StackPanel>
+
+			<!-- Second Column -->
+			<Panel Grid.Column="1">
+					<StackPanel Margin="10" Spacing="10">
+						<Grid>
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="4*"/>
+								<ColumnDefinition Width="1*"/>
+							</Grid.ColumnDefinitions>
+							<TextBox Grid.Column="0" Text="{Binding SendMessageField}"/>
+							<Button Grid.Column="1" Command="{Binding SendMessageCommand}" Content="Send" HorizontalContentAlignment="Center" HorizontalAlignment="Stretch" Margin="10,0,0,0"/>
+						</Grid>
+						<ScrollViewer x:Name="LogSV" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+							<TextBox Name="ReceivedTextBox" Text="{Binding ReceivedMessageLog}" TextWrapping="Wrap" AcceptsReturn="True" Height="200"/>
+						</ScrollViewer>
+						
+						<Grid>
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="1*"/>
+								<ColumnDefinition Width="1*"/>
+								<ColumnDefinition Width="1*"/>
+							</Grid.ColumnDefinitions>
+
+							<ComboBox Name="EncodingCombo" ItemsSource="{Binding EncodingItems}" SelectedItem="{Binding SelectedEncodingItem}" SelectionChanged="ComboBoxSelectionChanged" SelectedIndex="0" Grid.Column="0" HorizontalAlignment="Stretch" />
+							<CheckBox Command="{Binding AutoscrollCommand}" Grid.Column="2" HorizontalAlignment="Center">Autoscroll</CheckBox>
+						</Grid>
+					</StackPanel>
+			</Panel>
+		</Grid>
+
+	</Panel>
+
+</Window>
