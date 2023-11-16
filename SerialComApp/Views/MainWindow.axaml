@@ -14,6 +14,7 @@
 		CanResize="False"
 		ExtendClientAreaToDecorationsHint="False">
 
+
     <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,
              to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
@@ -114,12 +115,12 @@
 
 					<StackPanel Grid.Column="0" Grid.Row="0" Margin="5" Spacing="5">
 						<Button Content="Save Config" Command="{Binding SaveConfigCommand}" HorizontalContentAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
-						<Button Content="Connect" Command="{Binding ConnectCommand}" HorizontalContentAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+						<Button Content="{Binding ConnectDisconnectCommandString}" Command="{Binding ConnectDisconnectCommand}" HorizontalContentAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
 					</StackPanel>
 
 					<StackPanel Grid.Column="1" Grid.Row="0" Margin="5" Spacing="5">
 						<Button Content="Defaults" Command="{Binding SetDefaultsCommand}" HorizontalContentAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
-						<Button Content="Disconnect" Command="{Binding DisconnectCommand}" HorizontalContentAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+						<Button Content="PLACEHOLDER" Command="{Binding DisconnectCommand}" HorizontalContentAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
 					</StackPanel>
 				</Grid>
 

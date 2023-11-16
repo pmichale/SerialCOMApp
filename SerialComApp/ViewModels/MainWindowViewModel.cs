@@ -1,4 +1,5 @@
-﻿using Avalonia.Styling;
+﻿using Avalonia.Data.Converters;
+using Avalonia.Styling;
 using DynamicData;
 using ReactiveUI;
 using SerialComApp.Models;
@@ -7,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO.Ports;
 using System.Reactive;
 using System.Reactive.Linq;
@@ -30,6 +32,7 @@ namespace SerialComApp.ViewModels
         private int _scrollPosition;
         private bool _autoscrollToggle = false;
         private bool _isConnected = false;
+        private string _connectDisconnectCommandString = string.Empty;
 
         private IFileService _fileService;
 
@@ -59,12 +62,18 @@ namespace SerialComApp.ViewModels
         public MainWindowViewModel(IFileService fileService)
         {
             _fileService = fileService;
+            ConnectDisconnectCommandString = "";
 
-            var isValidObservable = this.WhenAnyValue(
+            // var isValidObservable = this.WhenAnyValue(
+            //     x => x.ComPortName,
+            //     x => x.BaudRate,
+            //     x => x.IsConnected,
+            //     (comPort, baudRate, isConnected) => !string.IsNullOrWhiteSpace(comPort) && int.TryParse(baudRate, out _) && !isConnected);
+
+            var isValidConnectOrDisconnect = this.WhenAnyValue(
                 x => x.ComPortName,
                 x => x.BaudRate,
-                x => x.IsConnected,
-                (comPort, baudRate, isConnected) => !string.IsNullOrWhiteSpace(comPort) && int.TryParse(baudRate, out _) && !isConnected);
+                (comPort, baudRate) => !string.IsNullOrWhiteSpace(comPort) && int.TryParse(baudRate, out _));
 
             var isConnectedObservable = this.WhenAnyValue(
                 x => x.IsConnected);
@@ -73,23 +82,19 @@ namespace SerialComApp.ViewModels
                 x => x.IsConnected,
                 x => !x);
 
-            ConnectDisconnectCommand = ReactiveCommand.Create(() =>
-            {
-                if (isValidObservable.Value && !isConnectedObservable)
-                {
-                    // Your combined connect logic
-                    Connect();
-                }
-                else if (isValidObservable.Value && isConnectedObservable.Value)
-                {
-                    // Your combined disconnect logic
-                    Disconnect();
-                }
-            }, isValidObservable.CombineLatest(isConnectedObservable, (isValid, isConnected) => isValid && !isConnected));
 
-            ConnectCommand = ReactiveCommand.Create(Connect, isValidObservable);
+            this
+                .WhenAnyValue(
+                    x => x.IsConnected)
+                .Subscribe(_ =>
+                {
+                    ConnectDisconnectCommandString = GetConnectDisconnectCommandString();
+                });
+
+            ConnectDisconnectCommand = ReactiveCommand.Create(ConnectDisconnect, isValidConnectOrDisconnect);
+            //ConnectCommand = ReactiveCommand.Create(Connect, isValidObservable);
             DisconnectCommand = ReactiveCommand.Create(Disconnect, isConnectedObservable);
-            SaveConfigCommand = ReactiveCommand.Create(LoadConfig, isValidObservable);
+            SaveConfigCommand = ReactiveCommand.Create(LoadConfig, isValidConnectOrDisconnect);
             SetDefaultsCommand = ReactiveCommand.Create(SetDefaults, isNotRunningObservable);
             SendMessageCommand = ReactiveCommand.Create(SendMessage, isConnectedObservable);
             AutoscrollCommand = ReactiveCommand.Create(Autoscroll);
@@ -103,6 +108,24 @@ namespace SerialComApp.ViewModels
             _appConfig = new AppConfig();
             SetFromConfig();
 
+        }
+
+        private void ConnectDisconnect()
+        {
+            if (IsConnected) { Disconnect(); }
+            else { Connect(); }
+        }
+
+        private string GetConnectDisconnectCommandString()
+        {
+            if (this.IsConnected)
+            {
+                return "Disconnect";
+            }
+            else
+            {
+                return "Connect";
+            }
         }
 
         private void DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
@@ -231,6 +254,12 @@ namespace SerialComApp.ViewModels
         {
             get => _scrollPosition;
             set => this.RaiseAndSetIfChanged(ref _scrollPosition, value);
+        }
+
+        public string ConnectDisconnectCommandString
+        {
+            get => _connectDisconnectCommandString;
+            set => this.RaiseAndSetIfChanged(ref _connectDisconnectCommandString, value);
         }
 
         private void Connect()
